@@ -1,0 +1,25 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t snghraj/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run snghraj/react-test npm -- --coverage
+
+after_success:
+  - docker build -t snghraj/multy-client ./client
+  - docker build -t snghraj/multy-ngnix ./ngnix
+  - docker build -t snghraj/multy-server ./server
+  - docker build -t snghraj/multy-worker ./worker
+
+#log in to docker cli
+  -echo "$DOCKER_PASSWORD" | docker login -u "DOCKER_ID" --password-stdin
+#take images and push them to docker hub
+  - docker push snghraj/multy-client
+  - docker push snghraj/multy-ngnix
+  - docker push snghraj/multy-server
+  - docker push snghraj/multy-worker
+
+  
